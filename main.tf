@@ -10,7 +10,7 @@ resource "random_string" "solution_suffix" {
 
 resource "aws_sagemaker_model" "sagemaker_model" {
   name               = "${var.name_prefix}-model-${random_string.solution_suffix.result}"
-  execution_role_arn = aws_iam_role.sg_endpoint_role[0].arn
+  execution_role_arn = coalesce(var.sg_role_arn, try(aws_iam_role.sg_endpoint_role[0].arn, null))
 
   dynamic "primary_container" {
     for_each = length(var.containers) == 1 ? [var.containers[0]] : []
@@ -39,11 +39,11 @@ resource "aws_sagemaker_model" "sagemaker_model" {
         for_each = primary_container.value.model_data_source != null ? [primary_container.value.model_data_source] : []
         content {
           s3_data_source {
-            s3_data_type    = model_data_source.value.s3_data_type
-            s3_uri          = model_data_source.value.s3_uri
+            s3_data_type     = model_data_source.value.s3_data_type
+            s3_uri           = model_data_source.value.s3_uri
             compression_type = model_data_source.value.is_compressed == true ? "Gzip" : "None"
             model_access_config {
-                accept_eula = model_data_source.value.accept_eula
+              accept_eula = model_data_source.value.accept_eula
             }
           }
         }
@@ -85,11 +85,11 @@ resource "aws_sagemaker_model" "sagemaker_model" {
         for_each = container.value.model_data_source != null ? [container.value.model_data_source] : []
         content {
           s3_data_source {
-            s3_data_type    = model_data_source.value.s3_data_type
-            s3_uri          = model_data_source.value.s3_uri
+            s3_data_type     = model_data_source.value.s3_data_type
+            s3_uri           = model_data_source.value.s3_uri
             compression_type = model_data_source.value.is_compressed == true ? "Gzip" : "None"
             model_access_config {
-                accept_eula = model_data_source.value.accept_eula
+              accept_eula = model_data_source.value.accept_eula
             }
           }
         }
@@ -104,7 +104,7 @@ resource "aws_sagemaker_model" "sagemaker_model" {
     }
   }
   enable_network_isolation = var.enable_network_isolation
-  tags = var.tags
+  tags                     = var.tags
 }
 
 # – SageMaker endpoint configuration –
@@ -113,36 +113,36 @@ resource "aws_sagemaker_endpoint_configuration" "sagemaker_endpoint_config" {
   name = "${var.name_prefix}-config-${random_string.solution_suffix.result}"
 
   production_variants {
-    accelerator_type                              = var.production_variant.accelerator_type
+    accelerator_type                                  = var.production_variant.accelerator_type
     container_startup_health_check_timeout_in_seconds = var.production_variant.container_startup_health_check_timeout_in_seconds
     dynamic "core_dump_config" {
       for_each = var.production_variant.core_dump_config != null ? [var.production_variant.core_dump_config] : []
       content {
         destination_s3_uri = core_dump_config.value.destination_s3_uri
-        kms_key_id        = core_dump_config.value.kms_key_id
+        kms_key_id         = core_dump_config.value.kms_key_id
       }
     }
-    enable_ssm_access                             = var.production_variant.enable_ssm_access
-    inference_ami_version                         = var.production_variant.inference_ami_version
-    initial_instance_count                        = var.production_variant.initial_instance_count
-    instance_type                                 = var.production_variant.instance_type
-    model_data_download_timeout_in_seconds        = var.production_variant.model_data_download_timeout_in_seconds
-    model_name                                    = aws_sagemaker_model.sagemaker_model.name
-    variant_name                                  = var.production_variant.variant_name
-    volume_size_in_gb                             = var.production_variant.volume_size_in_gb
-    initial_variant_weight                        = 1.0
+    enable_ssm_access                      = var.production_variant.enable_ssm_access
+    inference_ami_version                  = var.production_variant.inference_ami_version
+    initial_instance_count                 = var.production_variant.initial_instance_count
+    instance_type                          = var.production_variant.instance_type
+    model_data_download_timeout_in_seconds = var.production_variant.model_data_download_timeout_in_seconds
+    model_name                             = aws_sagemaker_model.sagemaker_model.name
+    variant_name                           = var.production_variant.variant_name
+    volume_size_in_gb                      = var.production_variant.volume_size_in_gb
+    initial_variant_weight                 = 1.0
   }
 
   kms_key_arn = var.kms_key_arn
-  tags = var.tags
+  tags        = var.tags
 }
 
 # – SageMaker endpoint –
 
 resource "aws_sagemaker_endpoint" "sagemaker_endpoint" {
-  name                    = var.endpoint_name
-  endpoint_config_name    = aws_sagemaker_endpoint_configuration.sagemaker_endpoint_config.name
-  tags                    = var.tags
+  name                 = var.endpoint_name
+  endpoint_config_name = aws_sagemaker_endpoint_configuration.sagemaker_endpoint_config.name
+  tags                 = var.tags
 }
 
 # – AutoScaling –
@@ -165,8 +165,8 @@ resource "aws_appautoscaling_policy" "sagemaker_policy" {
   service_namespace  = aws_appautoscaling_target.sagemaker_target[0].service_namespace
 
   target_tracking_scaling_policy_configuration {
-    target_value = var.autoscaling_config.target_value
-    scale_in_cooldown = var.autoscaling_config.scale_in_cooldown
+    target_value       = var.autoscaling_config.target_value
+    scale_in_cooldown  = var.autoscaling_config.scale_in_cooldown
     scale_out_cooldown = var.autoscaling_config.scale_out_cooldown
 
     predefined_metric_specification {
