@@ -1,6 +1,62 @@
-<!-- BEGIN_TF_DOCS -->
 # Terraform Amazon SageMaker Endpoint Module
 
+## What this repo is
+
+Terraform module that provisions a complete AWS SageMaker real-time inference stack: model, endpoint configuration, endpoint, and optional autoscaling. Used by Accompany Health to deploy ML models behind SageMaker endpoints.
+
+## What this owns
+
+SageMaker endpoint infrastructure-as-code: model registration, endpoint configuration, endpoint provisioning, IAM execution roles, and autoscaling policies.
+
+## Related systems
+
+- [Accompany-Health/environments](https://github.com/Accompany-Health/environments) — consumes this module for prod/dev deployments
+- [AWS SageMaker](https://docs.aws.amazon.com/sagemaker/latest/dg/whatis.html) — the underlying managed service
+
+## Stack
+
+- Language: HCL (Terraform)
+- Providers: AWS (~> 5.0), Random (>= 3.6.0)
+- Terraform: >= 1.0.7
+
+## Local Development
+
+See [docs/local-development.md](docs/local-development.md) for setup and run instructions.
+
+## Environment variables
+
+| Variable | Purpose | Where to get it |
+|----------|---------|----------------|
+| `AWS_PROFILE` | AWS SSO profile for plan/apply | `~/.aws/config` |
+| `AWS_REGION` | Target region | Defaults to profile region |
+
+## Where key things live
+
+- Infra resources: `main.tf`
+- IAM: `iam.tf`
+- Data sources: `data.tf`
+- Variables: `variables.tf`
+- Outputs: `outputs.tf`
+- Tests: `tests/`
+- Config: `.config/`
+
+## Deployment
+
+This is a library module — it is not deployed directly. Consumers reference it as a Terraform module source and deploy via their own pipelines.
+
+## Troubleshooting
+
+See [docs/troubleshooting.md](docs/troubleshooting.md) for common problems and solutions.
+
+## Ownership
+
+- Team: Data Science
+- Slack: #data-science
+- CODEOWNERS: `@Accompany-Health/data-science`
+
+---
+
+<!-- BEGIN_TF_DOCS -->
 <!-- markdownlint-disable MD012 -->
 This module includes resources to deploy Amazon SageMaker endpoints. It takes care of creating a SageMaker model, SageMaker endpoint configuration, and the SageMaker endpoint.
 
