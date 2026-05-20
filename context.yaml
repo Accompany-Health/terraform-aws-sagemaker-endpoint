@@ -1,0 +1,51 @@
+name: terraform-aws-sagemaker-endpoint
+type: library
+language:
+  - hcl
+owner:
+  team: ringmasters
+  slack: "#devops"
+  github: "@Accompany-Health/ringmasters"
+tier: tier2
+lifecycle: production
+domain:
+  - analytics
+interfaces:
+  inbound: []
+  outbound:
+    - aws-sagemaker
+    - aws-iam
+    - aws-autoscaling
+runtime:
+  run_local: "terraform plan"
+  test: "terraform test"
+  build: "terraform init"
+entrypoints:
+  - path: "main.tf"
+important_paths:
+  - path: "main.tf"
+    purpose: "SageMaker model, endpoint config, endpoint, and autoscaling resources"
+  - path: "iam.tf"
+    purpose: "IAM role and policy attachment for SageMaker execution"
+  - path: "variables.tf"
+    purpose: "Module input variables"
+  - path: "outputs.tf"
+    purpose: "Module outputs"
+  - path: "data.tf"
+    purpose: "Data sources and locals"
+dependencies:
+  internal: []
+  infra:
+    - aws-sagemaker
+    - aws-iam
+    - aws-appautoscaling
+    - aws-kms
+  external: []
+data_stores: []
+external_services:
+  - aws-sagemaker
+docs:
+  readme: "./README.md"
+  architecture: "./docs/architecture.md"
+  local_dev: "./docs/local-development.md"
+  runbook: ""
