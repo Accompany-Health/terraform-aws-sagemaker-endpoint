@@ -3,9 +3,9 @@ type: library
 language:
   - hcl
 owner:
-  team: data-science
-  slack: "#data-science"
-  github: "@Accompany-Health/data-science"
+  team: ringmasters
+  slack: "#devops"
+  github: "@Accompany-Health/ringmasters"
 tier: tier2
 lifecycle: production
 domain:
