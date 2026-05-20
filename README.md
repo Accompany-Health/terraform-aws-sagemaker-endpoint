@@ -50,9 +50,9 @@ See [docs/troubleshooting.md](docs/troubleshooting.md) for common problems and s
 
 ## Ownership
 
-- Team: Data Science
-- Slack: #data-science
-- CODEOWNERS: `@Accompany-Health/data-science`
+- Team: Ringmasters (DevOps)
+- Slack: #devops
+- CODEOWNERS: `@Accompany-Health/ringmasters`
 
 ---
 
